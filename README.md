@@ -63,7 +63,7 @@ From `artifacts/key_drivers.csv`:
 5. `Neighbourhood_SANTA CLARA`
 
 ## Submission Checklist Mapping
-- ✅ **Notebook/repo**: This repository contains the full implementation and outputs.
+- ✅ **Repository deliverables**: `src/train_model.py`, `artifacts/no_show_model.joblib`, `artifacts/evaluation.json`, and `artifacts/key_drivers.csv` are included.
 - ✅ **Trained model + evaluation**: Included in `artifacts/`.
 - ✅ **README**: This document.
 - ⏳ **2–3 min demo video**: Record a short walkthrough showing data flow, model training, metrics, and key drivers.

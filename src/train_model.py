@@ -12,25 +12,15 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 REQUIRED_COLUMNS = {
-    "Gender",
-    "ScheduledDay",
-    "AppointmentDay",
-    "Age",
-    "Neighbourhood",
-    "Scholarship",
-    "Hipertension",
-    "Diabetes",
-    "Alcoholism",
-    "Handcap",
-    "SMS_received",
-    "No-show",
+    "Gender", "ScheduledDay", "AppointmentDay", "Age", "Neighbourhood",
+    "Scholarship", "Hipertension", "Diabetes", "Alcoholism", "Handcap",
+    "SMS_received", "No-show",
 }
 
 DEFAULT_INPUT_CSV = Path("data/KaggleV2-May-2016.csv")
-
 
 
 def _prepare_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
@@ -49,22 +39,17 @@ def _prepare_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
 
     y = data["No-show"].astype(str).str.strip().str.lower().eq("yes").astype(int)
 
+    # NOTE: Neighbourhood dropped from the driver-reporting model.
+    # With 81 categories and some down to 1-2 appointments, one-hot coefficients
+    # on it are unstable and misleading as "key drivers." Weekday and clinical/
+    # demographic features are kept since they have enough data per category
+    # to produce a stable, honest coefficient.
     feature_columns = [
-        "Gender",
-        "Age",
-        "Neighbourhood",
-        "Scholarship",
-        "Hipertension",
-        "Diabetes",
-        "Alcoholism",
-        "Handcap",
-        "SMS_received",
-        "wait_days",
-        "appointment_weekday",
+        "Gender", "Age", "Scholarship", "Hipertension", "Diabetes",
+        "Alcoholism", "Handcap", "SMS_received", "wait_days", "appointment_weekday",
     ]
     x = data[feature_columns]
     return x, y
-
 
 
 def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_out: Path, test_size: float, random_state: int) -> None:
@@ -78,41 +63,23 @@ def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_ou
         x, y, test_size=test_size, random_state=random_state, stratify=y
     )
 
-    numeric_features = [
-        "Age",
-        "Scholarship",
-        "Hipertension",
-        "Diabetes",
-        "Alcoholism",
-        "Handcap",
-        "SMS_received",
-        "wait_days",
-    ]
-    categorical_features = ["Gender", "Neighbourhood", "appointment_weekday"]
+    numeric_features = ["Age", "Scholarship", "Hipertension", "Diabetes", "Alcoholism", "Handcap", "SMS_received", "wait_days"]
+    categorical_features = ["Gender", "appointment_weekday"]
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ("num", Pipeline(steps=[("imputer", SimpleImputer(strategy="median"))]), numeric_features),
-            (
-                "cat",
-                Pipeline(
-                    steps=[
-                        ("imputer", SimpleImputer(strategy="most_frequent")),
-                        ("encoder", OneHotEncoder(handle_unknown="ignore")),
-                    ]
-                ),
-                categorical_features,
-            ),
+            ("num", Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="median")),
+                ("scaler", StandardScaler()),  # FIX: puts numeric coefficients on the same scale as categorical dummies
+            ]), numeric_features),
+            ("cat", Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("encoder", OneHotEncoder(handle_unknown="ignore")),
+            ]), categorical_features),
         ]
     )
 
-    model = LogisticRegression(
-        random_state=random_state,
-        class_weight="balanced",
-        max_iter=1000,
-        solver="liblinear",
-    )
-
+    model = LogisticRegression(random_state=random_state, class_weight="balanced", max_iter=1000, solver="liblinear")
     pipeline = Pipeline(steps=[("preprocessor", preprocessor), ("model", model)])
     pipeline.fit(x_train, y_train)
 
@@ -139,9 +106,7 @@ def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_ou
 
     key_drivers = (
         pd.DataFrame({"feature": feature_names, "importance": importances})
-        .sort_values("importance", ascending=False)
-        .head(10)
-        .reset_index(drop=True)
+        .sort_values("importance", ascending=False).head(10).reset_index(drop=True)
     )
 
     model_out.parent.mkdir(parents=True, exist_ok=True)
@@ -151,7 +116,8 @@ def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_ou
     joblib.dump(pipeline, model_out)
     evaluation_out.write_text(json.dumps(evaluation, indent=2), encoding="utf-8")
     key_drivers.to_csv(key_drivers_out, index=False)
-
+    print(json.dumps(evaluation, indent=2))
+    print(key_drivers)
 
 
 def parse_args() -> argparse.Namespace:
@@ -168,10 +134,6 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
     train(
-        input_csv=args.input_csv,
-        model_out=args.model_out,
-        evaluation_out=args.evaluation_out,
-        key_drivers_out=args.key_drivers_out,
-        test_size=args.test_size,
-        random_state=args.random_state,
+        input_csv=args.input_csv, model_out=args.model_out, evaluation_out=args.evaluation_out,
+        key_drivers_out=args.key_drivers_out, test_size=args.test_size, random_state=args.random_state,
     )
