@@ -1,0 +1,11 @@
+feature,importance
+num__wait_days,0.4070657825125462
+cat__appointment_weekday_Saturday,0.3162939457978213
+num__SMS_received,0.17692397175732122
+num__Age,0.17390180166770505
+cat__appointment_weekday_Tuesday,0.10887333505398841
+cat__appointment_weekday_Wednesday,0.0964157381128895
+cat__appointment_weekday_Thursday,0.0958736516922231
+cat__appointment_weekday_Monday,0.0680004789892837
+num__Scholarship,0.05998769584189332
+cat__appointment_weekday_Friday,0.05079248231700587
