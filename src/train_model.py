@@ -7,8 +7,8 @@ from pathlib import Path
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -101,7 +101,12 @@ def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_ou
         ]
     )
 
-    model = RandomForestClassifier(n_estimators=300, random_state=random_state, class_weight="balanced")
+    model = LogisticRegression(
+        random_state=random_state,
+        class_weight="balanced",
+        max_iter=1000,
+        solver="liblinear",
+    )
 
     pipeline = Pipeline(steps=[("preprocessor", preprocessor), ("model", model)])
     pipeline.fit(x_train, y_train)
@@ -125,7 +130,7 @@ def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_ou
     preprocessor_fitted = pipeline.named_steps["preprocessor"]
     model_fitted = pipeline.named_steps["model"]
     feature_names = preprocessor_fitted.get_feature_names_out()
-    importances = model_fitted.feature_importances_
+    importances = abs(model_fitted.coef_[0])
 
     key_drivers = (
         pd.DataFrame({"feature": feature_names, "importance": importances})
@@ -146,7 +151,7 @@ def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_ou
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train PHC no-show prediction model")
-    parser.add_argument("--input-csv", type=Path, default=Path("data/phc_appointments.csv"))
+    parser.add_argument("--input-csv", type=Path, default=Path("data/KaggleV2-May-2016.csv"))
     parser.add_argument("--model-out", type=Path, default=Path("artifacts/no_show_model.joblib"))
     parser.add_argument("--evaluation-out", type=Path, default=Path("artifacts/evaluation.json"))
     parser.add_argument("--key-drivers-out", type=Path, default=Path("artifacts/key_drivers.csv"))
