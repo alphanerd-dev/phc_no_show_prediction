@@ -1,1 +1,73 @@
-# phc_no_show_prediction
+# PHC No-Show Prediction (DS-05)
+
+Capstone project for **3MTT × Nextgen** (Data Science Track) by Byteforce Solutions Tech Ltd.
+
+## Problem Context
+Missed primary healthcare (PHC) appointments waste clinical time and resources. This project builds a machine learning model to predict patient no-shows so clinics can apply proactive interventions (e.g., targeted reminders).
+
+## MVP Coverage
+This repository implements all required MVP items:
+
+- **Data preparation**: date parsing, feature engineering (`wait_days`, `appointment_weekday`), numeric cleaning
+- **Predictive model**: `LogisticRegression` in a preprocessing + modeling pipeline
+- **Key no-show drivers**: top absolute model coefficients exported to CSV
+- **Model evaluation**: accuracy, precision, recall, F1, ROC-AUC, and full classification report
+
+## Repository Structure
+
+- `data/KaggleV2-May-2016.csv` — Kaggle PHC appointment dataset (CSV)
+- `src/train_model.py` — end-to-end training/evaluation script
+- `artifacts/no_show_model.joblib` — trained model pipeline
+- `artifacts/evaluation.json` — model evaluation metrics
+- `artifacts/key_drivers.csv` — top model feature importances
+- `requirements.txt` — Python dependencies
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+```
+
+## Train and Evaluate
+
+```bash
+python src/train_model.py
+```
+
+Optional arguments:
+
+```bash
+python src/train_model.py \
+  --input-csv data/KaggleV2-May-2016.csv \
+  --model-out artifacts/no_show_model.joblib \
+  --evaluation-out artifacts/evaluation.json \
+  --key-drivers-out artifacts/key_drivers.csv
+```
+
+## Current Evaluation Snapshot
+From `artifacts/evaluation.json` (Kaggle dataset run):
+
+- Accuracy: **0.6533**
+- Precision (No-show class): **0.309**
+- Recall (No-show class): **0.5797**
+- F1-score (No-show class): **0.4031**
+- ROC-AUC: **0.6652**
+
+## Key Drivers (Top Features)
+From `artifacts/key_drivers.csv`:
+
+1. `Neighbourhood_ILHAS OCEÂNICAS DE TRINDADE`
+2. `Neighbourhood_AEROPORTO`
+3. `Neighbourhood_SANTOS DUMONT`
+4. `Neighbourhood_SOLON BORGES`
+5. `Neighbourhood_SANTA CLARA`
+
+## Submission Checklist Mapping
+- ✅ **Notebook/repo**: This repository contains the full implementation and outputs.
+- ✅ **Trained model + evaluation**: Included in `artifacts/`.
+- ✅ **README**: This document.
+- ⏳ **2–3 min demo video**: Record a short walkthrough showing data flow, model training, metrics, and key drivers.
+
+## Notes
+- The model is currently trained on `data/KaggleV2-May-2016.csv`.
+- You can replace the input CSV via `--input-csv` to retrain on updated PHC data.
