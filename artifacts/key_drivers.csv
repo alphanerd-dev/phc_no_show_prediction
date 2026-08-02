@@ -1,0 +1,11 @@
+feature,importance
+num__wait_days,0.24524683924199436
+num__Age,0.21637046444785318
+num__SMS_received,0.05317135957531268
+num__Scholarship,0.03547287314246283
+num__Hipertension,0.03444688878794728
+cat__Neighbourhood_Bairro_E,0.03086242312478458
+cat__Neighbourhood_Bairro_B,0.02819339710987789
+cat__Gender_M,0.027789212567267546
+cat__Neighbourhood_Bairro_D,0.02742416733244774
+cat__Gender_F,0.026707474347927227
