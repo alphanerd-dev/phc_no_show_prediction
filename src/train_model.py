@@ -29,6 +29,8 @@ REQUIRED_COLUMNS = {
     "No-show",
 }
 
+DEFAULT_INPUT_CSV = Path("data/KaggleV2-May-2016.csv")
+
 
 
 def _prepare_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
@@ -66,6 +68,9 @@ def _prepare_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
 
 
 def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_out: Path, test_size: float, random_state: int) -> None:
+    if not input_csv.exists():
+        raise FileNotFoundError(f"Input dataset not found: {input_csv.resolve()}")
+
     df = pd.read_csv(input_csv)
     x, y = _prepare_data(df)
 
@@ -151,7 +156,7 @@ def train(input_csv: Path, model_out: Path, evaluation_out: Path, key_drivers_ou
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train PHC no-show prediction model")
-    parser.add_argument("--input-csv", type=Path, default=Path("data/KaggleV2-May-2016.csv"))
+    parser.add_argument("--input-csv", type=Path, default=DEFAULT_INPUT_CSV)
     parser.add_argument("--model-out", type=Path, default=Path("artifacts/no_show_model.joblib"))
     parser.add_argument("--evaluation-out", type=Path, default=Path("artifacts/evaluation.json"))
     parser.add_argument("--key-drivers-out", type=Path, default=Path("artifacts/key_drivers.csv"))
