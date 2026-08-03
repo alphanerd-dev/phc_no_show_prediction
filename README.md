@@ -1,6 +1,6 @@
 # PHC No-Show Prediction (DS-05)
 
-Capstone project for **3MTT × Nextgen** (Data Science Track) by Byteforce Solutions Tech Ltd.
+Capstone project for **3MTT × Nextgen** (Data Science Track)
 
 ## Problem Context
 Missed primary healthcare (PHC) appointments waste clinical time and resources. This project builds a machine learning model to predict patient no-shows so clinics can apply proactive interventions (e.g., targeted reminders).
@@ -63,18 +63,11 @@ From `artifacts/key_drivers.csv`:
 3. `Age`
 4. Appointment weekday (Tuesday–Friday) — smaller, secondary effect
 
-**Note on Neighbourhood:** an earlier version of this model included `Neighbourhood` as a feature and it dominated the top-driver list. On inspection, the top "driver" neighbourhoods had as few as 1–2 appointments in the entire dataset — the model was fitting noise from tiny sample sizes, not a real pattern. Neighbourhood was excluded from the driver-reporting model for this reason. This is noted here for transparency about the modeling decision.
-
 ## Submission Checklist Mapping
 - ✅ **Notebook/repo**: This repository contains the full implementation and outputs.
-- ✅ **Trained model + evaluation**: Included in `artifacts/`.
+- ✅ **Trained model + evaluation**: Included in `insights/`.
 - ✅ **README**: This document.
-- ⏳ **2–3 min demo video**: Record a short walkthrough showing data flow, model training, metrics, and key drivers.
 
 ## Limitations
 - Trained on a Brazilian appointments dataset used as a proxy — no public Nigerian PHC no-show dataset currently exists. A real deployment would need retraining on local PHC records.
 - Doesn't capture transport distance or cost, which Nigerian studies point to as a major driver of missed appointments that this dataset can't represent.
-
-## Notes
-- The model is currently trained on `data/KaggleV2-May-2016.csv`.
-- You can replace the input CSV via `--input-csv` to retrain on updated PHC data.
