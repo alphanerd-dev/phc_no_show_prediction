@@ -1,4 +1,4 @@
-# PHC No-Show Prediction (DS-05)
+# PHC No-Show Prediction
 
 Capstone project for **3MTT × Nextgen** (Data Science Track)
 
@@ -65,7 +65,7 @@ From `artifacts/key_drivers.csv`:
 
 ## Submission Checklist Mapping
 - ✅ **Notebook/repo**: This repository contains the full implementation and outputs.
-- ✅ **Trained model + evaluation**: Included in `insights/`.
+- ✅ **Trained model + evaluation**: Included in `artifacts/`.
 - ✅ **README**: This document.
 
 ## Limitations
