@@ -1,6 +1,6 @@
-# PHC No-Show Prediction (DS-05)
+# PHC No-Show Prediction
 
-Capstone project for **3MTT × Nextgen** (Data Science Track) by Byteforce Solutions Tech Ltd.
+Capstone project for **3MTT × Nextgen** (Data Science Track)
 
 ## Problem Context
 Missed primary healthcare (PHC) appointments waste clinical time and resources. This project builds a machine learning model to predict patient no-shows so clinics can apply proactive interventions (e.g., targeted reminders).
@@ -9,8 +9,8 @@ Missed primary healthcare (PHC) appointments waste clinical time and resources. 
 This repository implements all required MVP items:
 
 - **Data preparation**: date parsing, feature engineering (`wait_days`, `appointment_weekday`), numeric cleaning
-- **Predictive model**: `LogisticRegression` in a preprocessing + modeling pipeline
-- **Key no-show drivers**: top absolute model coefficients exported to CSV
+- **Predictive model**: `LogisticRegression` in a preprocessing + modeling pipeline (scaled numeric features + one-hot categorical features)
+- **Key no-show drivers**: top model coefficients, restricted to features with enough sample size per category to be statistically meaningful
 - **Model evaluation**: accuracy, precision, recall, F1, ROC-AUC, and full classification report
 
 ## Repository Structure
@@ -45,29 +45,29 @@ python src/train_model.py \
 ```
 
 ## Current Evaluation Snapshot
-From `artifacts/evaluation.json` (Kaggle dataset run):
+From `artifacts/evaluation.json` (Kaggle dataset run, 110,527 appointments):
 
-- Accuracy: **0.6533**
-- Precision (No-show class): **0.309**
-- Recall (No-show class): **0.5797**
-- F1-score (No-show class): **0.4031**
-- ROC-AUC: **0.6652**
+- Accuracy: **0.6666**
+- Precision (No-show class): **0.318**
+- Recall (No-show class): **0.5692**
+- F1-score (No-show class): **0.4081**
+- ROC-AUC: **0.6649**
+
+Recall was prioritized over raw accuracy in model selection, since missing an actual no-show wastes a clinic slot, while a false alarm only costs an extra reminder call — a much cheaper mistake.
 
 ## Key Drivers (Top Features)
 From `artifacts/key_drivers.csv`:
 
-1. `Neighbourhood_ILHAS OCEÂNICAS DE TRINDADE`
-2. `Neighbourhood_AEROPORTO`
-3. `Neighbourhood_SANTOS DUMONT`
-4. `Neighbourhood_SOLON BORGES`
-5. `Neighbourhood_SANTA CLARA`
+1. `wait_days` — days between booking and the appointment (strongest predictor by a clear margin)
+2. `SMS_received` — whether the patient got a reminder
+3. `Age`
+4. Appointment weekday (Tuesday–Friday) — smaller, secondary effect
 
 ## Submission Checklist Mapping
-- ✅ **Repository deliverables**: `src/train_model.py`, `artifacts/no_show_model.joblib`, `artifacts/evaluation.json`, and `artifacts/key_drivers.csv` are included.
+- ✅ **Notebook/repo**: This repository contains the full implementation and outputs.
 - ✅ **Trained model + evaluation**: Included in `artifacts/`.
 - ✅ **README**: This document.
-- ⏳ **2–3 min demo video**: Record a short walkthrough showing data flow, model training, metrics, and key drivers.
 
-## Notes
-- The model is currently trained on `data/KaggleV2-May-2016.csv`.
-- You can replace the input CSV via `--input-csv` to retrain on updated PHC data.
+## Limitations
+- Trained on a Brazilian appointments dataset used as a proxy — no public Nigerian PHC no-show dataset currently exists. A real deployment would need retraining on local PHC records.
+- Doesn't capture transport distance or cost, which Nigerian studies point to as a major driver of missed appointments that this dataset can't represent.
